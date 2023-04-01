@@ -1,4 +1,4 @@
-# Tic-Tac-Teo Game
+# Tic-Tac-Toe Game
 
 They say nothing is impossible, but defeating a computer in a game of Tic-Tac-Toe is pretty close. This is a simple game of Tic-Tac-Toe that you can play against the computer. The computer uses a minimax algorithm to determine the best move.
 
