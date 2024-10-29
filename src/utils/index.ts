@@ -78,6 +78,7 @@ export const moveResult = (board: Board, move: [number, number]) => {
 
   if (availableMoves(board)?.some((m) => m[0] === row && m[1] === col)) {
     const newBoard = board.map((row) => [...row]);
+    1;
     newBoard[row][col] = getPlayer(board);
     return newBoard;
   }
@@ -90,25 +91,29 @@ const getScore = (board: Board) => {
   else return 0;
 };
 
-const minVal = (board: Board, depth: number) => {
+const minVal = (board: Board, depth: number, alpha: number, beta: number) => {
   if (isGameTerminate(board)) return getScore(board);
 
   let v = Infinity;
 
   for (let move of availableMoves(board)!) {
-    v = Math.min(v, maxVal(moveResult(board, move)!, depth + 1));
+    v = Math.min(v, maxVal(moveResult(board, move)!, depth + 1, alpha, beta));
+    if (v <= alpha) return v;
+    beta = Math.min(beta, v);
   }
 
   return v;
 };
 
-const maxVal = (board: Board, depth: number) => {
+const maxVal = (board: Board, depth: number, alpha: number, beta: number) => {
   if (isGameTerminate(board)) return getScore(board);
 
   let v = -Infinity;
 
   for (let move of availableMoves(board)!) {
-    v = Math.max(v, minVal(moveResult(board, move)!, depth + 1));
+    v = Math.max(v, minVal(moveResult(board, move)!, depth + 1, alpha, beta));
+    if (v >= beta) return v;
+    alpha = Math.max(alpha, v);
   }
 
   return v;
@@ -118,28 +123,25 @@ export const minimax = (board: Board) => {
   if (isGameTerminate(board)) return null;
 
   const agent = getPlayer(board);
-
   let bestMove: [number, number] | null = null;
 
   if (agent === "X") {
-    for (let i = 0; i < availableMoves(board)?.length!; i++) {
-      const move = availableMoves(board)![i];
-      const score = minVal(moveResult(board, move)!, 0);
-
-      if (score === 1) return move;
-
-      if (bestMove === null || score > minVal(moveResult(board, bestMove)!, 0))
+    let bestScore = -Infinity;
+    for (let move of availableMoves(board)!) {
+      const score = minVal(moveResult(board, move)!, 0, bestScore, Infinity);
+      if (score > bestScore) {
+        bestScore = score;
         bestMove = move;
+      }
     }
   } else {
-    for (let i = 0; i < availableMoves(board)?.length!; i++) {
-      const move = availableMoves(board)![i];
-      const score = maxVal(moveResult(board, move)!, 0);
-
-      if (score === -1) return move;
-
-      if (bestMove === null || score < maxVal(moveResult(board, bestMove)!, 0))
+    let bestScore = Infinity;
+    for (let move of availableMoves(board)!) {
+      const score = maxVal(moveResult(board, move)!, 0, -Infinity, bestScore);
+      if (score < bestScore) {
+        bestScore = score;
         bestMove = move;
+      }
     }
   }
 
